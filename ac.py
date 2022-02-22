@@ -99,8 +99,8 @@ def compute_C(Xi, Xinext, Wa):
     def f2(Xf):
         return 2 * (Constant.alpha ** 2) * compute_actor(Xf, Wa).T * Constant.R * np.tanh(compute_actor(Xf, Wa))
     def f3(Xf):
-        # l = list([np.log(1 - np.tanh(Wa[j] * compute_actor_activate(Xf)[:, j]) ** 2) for j in range(len(Wa))])
-        l = list([min(100.0, max(-100.0, np.log(1 - np.tanh(Wa[j] * compute_actor_activate(Xf)[:, j]) ** 2))) for j in range(len(Wa))])
+        l = list([np.log(1 - np.tanh(Wa[j] * compute_actor_activate(Xf)[:, j]) ** 2) for j in range(len(Wa))])
+        # l = list([min(100.0, max(-100.0, np.log(1 - np.tanh(Wa[j] * compute_actor_activate(Xf)[:, j]) ** 2))) for j in range(len(Wa))])
         return ((Constant.alpha ** 2) * Constant.R
                 * sum(l))
     return (f1(Xi) + f1(Xinext)) / 2 + (f2(Xi) + f2(Xinext)) / 2 + (f3(Xi) + f3(Xinext)) / 2

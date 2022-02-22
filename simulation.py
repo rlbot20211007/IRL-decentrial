@@ -26,14 +26,20 @@ def update_x(x, U, p, t):
            p32 * x32 * (np.sin(x21) ** 2) +
            p33 * x12 * np.cos(x22))[0]
 
+    # print(U, [p1_, p2_, p3_])
+
     x1_ = (np.array([-x12, x11 * x12])
            + np.array([[0], 2 - np.cos(x12) ** 2]) * (u1 + p1_))
 
+    x1_ = np.clip(x1_, -1, 1)
+
     x2_ = (np.array([x22, -x21 - 0.5 * x22 + 0.5 * (x21 ** 2) * x22])
            + np.array([[0], 1 + np.cos(x21)]) * (u2 + p2_))
+    x2_ = np.clip(x2_, -1, 1)
 
     x3_ = (np.array([-x31 + x32, -0.5 * (x31 + x32)])
            + np.array([[0], 0.5 * x32 * ((2 + np.cos(2 * x31) ** 2) ** 2) + (2 + np.cos(2 * x21) ** 2)])* (u3 + p3_))
+    x3_ = np.clip(x3_, -1, 1)
 
     return x1_, x2_, x3_
 
@@ -100,8 +106,8 @@ def compute_VX(X, u, t):
     # print(u, u/alpha, np.arctanh(u/alpha).T)
 
     ratio = (np.matmul(np.matmul(X.T, Constant.Q), X)[0, 0]
-             # + 2 * alpha * R * (np.arctanh(u/alpha).T * u)
-             + 2 * Constant.alpha * Constant.R * (max(min(np.arctanh(u/Constant.alpha).T, 1000.0), -1000.0) * u)
+             + 2 * Constant.alpha * Constant.R * (np.arctanh(u/Constant.alpha).T * u)
+             # + 2 * Constant.alpha * Constant.R * (max(min(np.arctanh(u/Constant.alpha).T, 1000.0), -1000.0) * u)
              + Constant.alpha ** 2 * Constant.R * np.log(1 - (u[0] / Constant.alpha) ** 2))
     # print(np.dot(np.dot(X.T, Q), X), 2 * alpha * R * np.dot(np.arctanh(u/alpha).T, u), alpha ** 2 * R * np.log(1 - (u / alpha) ** 2))
     # print(X, u, t, ratio)
@@ -117,8 +123,8 @@ def compute_VX(X, u, t):
 def compute_deltaV(X, X_next, u, V):
 
     def f(tau):
-        ret = (max(min(np.arctanh(u/Constant.alpha).T, 1000.0), -1000.0)) * Constant.R
-        # ret = np.arctanh(u/alpha).T * R
+        # ret = (max(min(np.arctanh(u/Constant.alpha).T, 1000.0), -1000.0)) * Constant.R
+        ret = np.arctanh(u/Constant.alpha).T * Constant.R
         return ret
 
     pre = np.matmul(np.matmul(X.T, Constant.Q), X)[0,0] + 2 * Constant.alpha * integrate.quad(f, 0, u[0])[0] - Constant.lamb * V
